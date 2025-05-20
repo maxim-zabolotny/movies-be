@@ -5,6 +5,15 @@ import { logger } from '../utils/logger';
 import sequelize from '../config/database';
 import {ErrorCodes} from "../utils/constants";
 import {Op, Sequelize} from 'sequelize';
+import fs from "fs";
+import path from "path";
+
+interface ParsedMovie {
+  title: string;
+  year: string;
+  format: string;
+  stars: string[];
+}
 
 export class MovieService implements IMovieService {
   async createMovie(data: {
@@ -259,6 +268,95 @@ export class MovieService implements IMovieService {
       data: cleanedMovies,
       meta: { total },
       status: 1
+    };
+  }
+
+  private parseMovieBlock(block: string): ParsedMovie {
+    console.log('block');
+    console.log(block);
+    const lines = block
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line !== '');
+
+    const movie: ParsedMovie = {
+      title: '',
+      year: '',
+      format: '',
+      stars: []
+    };
+
+    for (const rawLine of lines) {
+      const match = rawLine.match(/^([^:]+):\s*(.+)$/);
+      if (!match) continue;
+
+      const key = match[1].trim();
+      const value = match[2].trim();
+
+      switch (key) {
+        case 'Title':
+          movie.title = value;
+          break;
+        case 'Release Year':
+          movie.year = value;
+          break;
+        case 'Format':
+          movie.format = value;
+          break;
+        case 'Stars':
+          movie.stars = value.split(',').map(star => star.trim());
+          break;
+      }
+    }
+
+    return movie;
+  }
+
+
+  async importMoviesFromFile(filePath: string): Promise<{ movies: Movie[]; imported: number; total: number }> {
+    const content = fs.readFileSync(filePath, 'utf-8');
+
+    const movieBlocks = content
+        .split(/\n\s*\n/)
+        .map(block => block.trim())
+        .filter(block => block.length > 0);
+
+    const importedMovies: Movie[] = [];
+    let imported = 0;
+    let total = movieBlocks.length;
+
+    for (const block of movieBlocks) {
+      const parsedMovie = this.parseMovieBlock(block);
+
+      const parsedYear = parseInt(parsedMovie.year, 10);
+      if (!parsedMovie.title || !parsedYear || !parsedMovie.format) {
+        logger.error(`❌Skipping invalid movie: ${JSON.stringify(parsedMovie)}`);
+        continue;
+      }
+
+      try {
+        const movie = await this.createMovie({
+          title: parsedMovie.title,
+          year: parsedYear,
+          format: parsedMovie.format as MovieFormat,
+          actors: parsedMovie.stars
+        });
+
+        if (movie) {
+          await movie.update({ source: path.basename(filePath) });
+          importedMovies.push(movie);
+          imported++;
+        }
+      } catch (error) {
+        logger.error(`Error importing movie ${parsedMovie.title}:`, error);
+        logger.error(JSON.stringify(parsedMovie));
+      }
+    }
+
+    return {
+      movies: importedMovies,
+      imported,
+      total
     };
   }
 

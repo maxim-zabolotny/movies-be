@@ -26,7 +26,7 @@ export class MovieController extends BaseController {
       this.sendSuccess(res, movie);
     } catch (error: any) {
       logger.error('Error in MovieController.create:', error);
-      
+
       if (error.message === ErrorCodes.MOVIE_EXISTS) {
         this.sendError(res, ErrorCodes.MOVIE_EXISTS, {
           title: 'Movie with these details already exists'
@@ -40,7 +40,7 @@ export class MovieController extends BaseController {
   public update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         this.sendError(res, 'INVALID_ID', {
           id: 'Invalid movie ID'
@@ -59,7 +59,7 @@ export class MovieController extends BaseController {
       this.sendSuccess(res, movie);
     } catch (error: any) {
       logger.error('Error in MovieController.update:', error);
-      
+
       if (error.message === ErrorCodes.MOVIE_NOT_FOUND) {
         this.sendError(res, ErrorCodes.MOVIE_NOT_FOUND, {
           id: parseInt(req.params.id),
@@ -81,7 +81,7 @@ export class MovieController extends BaseController {
   public delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         this.sendError(res, 'INVALID_ID', {
           id: req.params.id,
@@ -90,13 +90,13 @@ export class MovieController extends BaseController {
       }
 
       const success = await this.movieService.deleteMovie(id);
-      
+
       if (success) {
         this.sendSuccess(res, { message: 'Movie deleted successfully' });
       }
     } catch (error: any) {
       logger.error('Error in MovieController.delete:', error);
-      
+
       if (error.message === ErrorCodes.MOVIE_NOT_FOUND) {
         this.sendError(res, ErrorCodes.MOVIE_NOT_FOUND, {
           id: parseInt(req.params.id),
@@ -110,7 +110,7 @@ export class MovieController extends BaseController {
   public getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         this.sendError(res, ErrorCodes.INVALID_ID, {
           id: req.params.id
@@ -122,7 +122,7 @@ export class MovieController extends BaseController {
       this.sendSuccess(res, movie);
     } catch (error: any) {
       logger.error('Error in MovieController.getById:', error);
-      
+
       if (error.message === ErrorCodes.MOVIE_NOT_FOUND) {
         this.sendError(res, ErrorCodes.MOVIE_NOT_FOUND, {
           id: parseInt(req.params.id)
@@ -169,6 +169,31 @@ export class MovieController extends BaseController {
           message: ErrorCodes.INTERNAL_SERVER_ERROR
         }
       });
+    }
+  };
+
+  public importMovies = async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.file) {
+        this.sendError(res, ErrorCodes.REQUIRED, {
+          message: 'No file uploaded'
+        });
+        return;
+      }
+
+      const result = await this.movieService.importMoviesFromFile(req.file.path);
+
+      res.json({
+        status: 1,
+        data: result.movies,
+        meta: {
+          imported: result.imported,
+          total: result.total
+        }
+      });
+    } catch (error) {
+      logger.error('Error in MovieController.importMovies:', error);
+      this.sendError(res, ErrorCodes.INTERNAL_SERVER_ERROR);
     }
   };
 }
