@@ -1,5 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
+import Actor from './Actor';
 
 export enum MovieFormat {
   VHS = 'VHS',
@@ -8,7 +9,7 @@ export enum MovieFormat {
 }
 
 interface MovieAttributes {
-  id: number;
+  id?: number;
   title: string;
   year: number;
   format: MovieFormat;
@@ -25,6 +26,12 @@ class Movie extends Model<MovieAttributes> implements MovieAttributes {
   public source?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+
+  public getActors!: () => Promise<Actor[]>;
+  public setActors!: (actors: Actor[]) => Promise<void>;
+  public addActor!: (actor: Actor) => Promise<void>;
+  public removeActor!: (actor: Actor) => Promise<void>;
 }
 
 Movie.init(
