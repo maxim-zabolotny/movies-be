@@ -9,4 +9,11 @@ export interface IMovieService {
   }): Promise<Movie | null>;
 
   deleteMovie(id: number): Promise<boolean>;
+
+  updateMovie(id: number, data: {
+    title?: string;
+    year?: number;
+    format?: string;
+    actors?: string[];
+  }): Promise<Movie | null>;
 }

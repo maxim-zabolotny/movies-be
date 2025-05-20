@@ -28,16 +28,16 @@ export class MovieController extends BaseController {
       logger.error('Error in MovieController.create:', error);
       
       if (error.message === ErrorCodes.MOVIE_EXISTS) {
-        this.sendError(res, 'MOVIE_EXISTS', {
+        this.sendError(res, ErrorCodes.MOVIE_EXISTS, {
           title: 'Movie with these details already exists'
         });
       } else {
-        this.sendError(res, 'INTERNAL_SERVER_ERROR');
+        this.sendError(res, ErrorCodes.INTERNAL_SERVER_ERROR);
       }
     }
   };
 
-  public delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
       
@@ -48,20 +48,61 @@ export class MovieController extends BaseController {
         return;
       }
 
+      const { title, year, format, actors } = req.body;
+      const movie = await this.movieService.updateMovie(id, {
+        title,
+        year,
+        format,
+        actors
+      });
+
+      this.sendSuccess(res, movie);
+    } catch (error: any) {
+      logger.error('Error in MovieController.update:', error);
+      
+      if (error.message === ErrorCodes.MOVIE_NOT_FOUND) {
+        this.sendError(res, ErrorCodes.MOVIE_NOT_FOUND, {
+          id: parseInt(req.params.id),
+        });
+      } else if (error.message === ErrorCodes.MOVIE_EXISTS) {
+        this.sendError(res, ErrorCodes.MOVIE_EXISTS, {
+          title: 'Movie with these details already exists'
+        });
+      } else if (error.message === ErrorCodes.FORMAT_ERROR) {
+        this.sendError(res, ErrorCodes.FORMAT_ERROR, {
+          format: req.body.format,
+        });
+      } else {
+        this.sendError(res, ErrorCodes.INTERNAL_SERVER_ERROR);
+      }
+    }
+  };
+
+  public delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        this.sendError(res, 'INVALID_ID', {
+          id: req.params.id,
+        });
+        return;
+      }
+
       const success = await this.movieService.deleteMovie(id);
       
       if (success) {
-        this.sendSuccess(res, { });
+        this.sendSuccess(res, { message: 'Movie deleted successfully' });
       }
     } catch (error: any) {
       logger.error('Error in MovieController.delete:', error);
       
       if (error.message === ErrorCodes.MOVIE_NOT_FOUND) {
-        this.sendError(res, 'MOVIE_NOT_FOUND', {
+        this.sendError(res, ErrorCodes.MOVIE_NOT_FOUND, {
           id: parseInt(req.params.id),
         });
       } else {
-        this.sendError(res, 'INTERNAL_SERVER_ERROR');
+        this.sendError(res, ErrorCodes.INTERNAL_SERVER_ERROR);
       }
     }
   };
