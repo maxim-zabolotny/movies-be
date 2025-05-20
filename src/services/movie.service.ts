@@ -3,6 +3,7 @@ import { MovieFormat } from '../models/Movie';
 import { IMovieService } from './interfaces/movie.service.interface';
 import { logger } from '../utils/logger';
 import sequelize from '../config/database';
+import {ErrorCodes} from "../utils/constants";
 
 export class MovieService implements IMovieService {
   async createMovie(data: {
@@ -14,10 +15,6 @@ export class MovieService implements IMovieService {
     const transaction = await sequelize.transaction();
 
     try {
-      if (!Object.values(MovieFormat).includes(data.format as MovieFormat)) {
-        throw new Error('INVALID_FORMAT');
-      }
-
       const existingMovie = await Movie.findOne({
         where: {
           title: data.title,
@@ -28,7 +25,7 @@ export class MovieService implements IMovieService {
       });
 
       if (existingMovie) {
-        throw new Error('MOVIE_EXISTS');
+        throw new Error(ErrorCodes.MOVIE_EXISTS);
       }
 
       const movie = await Movie.create({
