@@ -2,8 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
-import movieRoutes from './routes/movie.routes';
 import initModels from './models/init';
+import routes from './routes';
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
 const API_PREFIX = '/api/v1';
-app.use(`${API_PREFIX}/movies`, movieRoutes);
+app.use(API_PREFIX, routes);
 
 // Health check
 app.get('/', (req, res) => {

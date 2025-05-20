@@ -1,5 +1,4 @@
 import sequelize from '../config/database';
-import { Movie, Actor, MovieActor } from './index';
 
 // Initialize all models
 const initModels = async () => {

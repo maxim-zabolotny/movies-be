@@ -1,6 +1,7 @@
 import Movie from './Movie';
 import Actor from './Actor';
 import MovieActor from './MovieActor';
+import { User } from './user.model';
 
 Movie.belongsToMany(Actor, { 
   through: MovieActor,
@@ -17,5 +18,6 @@ Actor.belongsToMany(Movie, {
 export {
   Movie,
   Actor,
-  MovieActor
+  MovieActor,
+  User
 };
