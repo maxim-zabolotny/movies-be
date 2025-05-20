@@ -7,6 +7,7 @@ import {ErrorCodes} from "../utils/constants";
 import {Op, Sequelize} from 'sequelize';
 import fs from "fs";
 import path from "path";
+import { config } from '../config';
 
 interface ParsedMovie {
   title: string;
@@ -343,7 +344,9 @@ export class MovieService implements IMovieService {
         });
 
         if (movie) {
-          await movie.update({ source: path.basename(filePath) });
+          const fileName = path.basename(filePath);
+          const sourceUrl = `${config.serverUrl}${config.uploadsPath}/${fileName}`;
+          await movie.update({ source: sourceUrl });
           importedMovies.push(movie);
           imported++;
         }
