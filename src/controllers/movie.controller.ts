@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { BaseController } from './base.controller';
 import { MovieService } from '../services/movie.service';
 import { logger } from '../utils/logger';
+import {ErrorCodes} from "../utils/constants";
 
 export class MovieController extends BaseController {
   private movieService: MovieService;
@@ -26,12 +27,12 @@ export class MovieController extends BaseController {
     } catch (error: any) {
       logger.error('Error in MovieController.create:', error);
       
-       if (error.message === 'MOVIE_EXISTS') {
-        this.sendError(res, 'MOVIE_EXISTS', {
-          title: 'Movie with these details already exists'
+       if (error.message === ErrorCodes.MOVIE_EXISTS) {
+        this.sendError(res, ErrorCodes.MOVIE_EXISTS, {
+          title: ErrorCodes.NOT_UNIQUE
         });
       } else {
-        this.sendError(res, 'INTERNAL_SERVER_ERROR');
+        this.sendError(res, ErrorCodes.INTERNAL_SERVER_ERROR);
       }
     }
   };

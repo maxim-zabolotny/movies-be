@@ -6,7 +6,7 @@ dotenv.config();
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: process.env.DB_PATH || './database.sqlite',
-  logging: false
+  logging: console.log
 });
 
 export const testConnection = async () => {
@@ -15,6 +15,17 @@ export const testConnection = async () => {
     console.log('Database connection has been established successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
+  }
+};
+
+export const initDatabase = async () => {
+  try {
+    console.log('Starting database initialization...');
+    await sequelize.sync({ force: true });
+    console.log('Database tables have been created successfully.');
+  } catch (error) {
+    console.error('Unable to create database tables:', error);
+    throw error;
   }
 };
 
