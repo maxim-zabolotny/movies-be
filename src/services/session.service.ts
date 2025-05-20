@@ -33,10 +33,6 @@ export class SessionService implements ISessionService {
             const token = jwt.sign(
                 {
                     id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    createdAt: user.createdAt,
-                    updatedAt: user.updatedAt
                 },
                 config.jwtSecret,
                 { expiresIn: '24h' }
