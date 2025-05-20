@@ -18,4 +18,14 @@ export interface IMovieService {
   }): Promise<Movie | null>;
 
   getMovieById(id: number): Promise<Movie | null>;
+
+  getAllMovies(params: {
+    actor?: string;
+    title?: string;
+    search?: string;
+    sort?: string;
+    order?: 'ASC' | 'DESC';
+    limit?: number;
+    offset?: number;
+  }): Promise<{ data: Movie[]; meta: { total: number } }>;
 }

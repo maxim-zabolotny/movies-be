@@ -4,7 +4,7 @@ import { IMovieService } from './interfaces/movie.service.interface';
 import { logger } from '../utils/logger';
 import sequelize from '../config/database';
 import {ErrorCodes} from "../utils/constants";
-import { Op } from 'sequelize';
+import {Op, Sequelize} from 'sequelize';
 
 export class MovieService implements IMovieService {
   async createMovie(data: {
@@ -178,4 +178,88 @@ export class MovieService implements IMovieService {
       throw error;
     }
   }
+
+  async getAllMovies(params: {
+    actor?: string;
+    title?: string;
+    search?: string;
+    sort?: string;
+    order?: 'ASC' | 'DESC';
+    limit?: number;
+    offset?: number;
+  }): Promise<{
+    data: Omit<Movie, 'Actors'>[];
+    meta: { total: number };
+    status: number;
+  }> {
+    const {
+      actor,
+      title,
+      search,
+      sort = 'id',
+      order = 'ASC',
+      limit = 10,
+      offset = 0
+    } = params;
+
+    const where: any = {};
+    const include: any[] = [];
+
+    include.push({
+      model: Actor,
+      required: false
+    });
+
+    if (actor) {
+      include[0].required = true;
+      include[0].where = {
+        name: {
+          [Op.like]: `%${actor}%`
+        }
+      };
+    }
+
+    if (title) {
+      where.title = {
+        [Op.like]: `%${title}%`
+      };
+    }
+
+    if (search) {
+      include[0].required = false;
+      where[Op.or] = [
+        { title: { [Op.like]: `%${search}%` } },
+        Sequelize.literal(`EXISTS (
+        SELECT 1 FROM movie_actors AS ma
+        INNER JOIN actors AS a ON a.id = ma.actorId
+        WHERE ma.movieId = Movie.id AND a.name LIKE '%${search}%'
+      )`)
+      ];
+    }
+
+    const movies = await Movie.findAll({
+      where,
+      include,
+      order: [[sort, order]],
+      limit,
+      offset
+    });
+
+    const total = await Movie.count({
+      where,
+      include
+    });
+
+    const cleanedMovies = movies.map((movie: any) => {
+      const { Actors, ...rest } = movie.get({ plain: true });
+      return rest;
+    });
+
+    return {
+      data: cleanedMovies,
+      meta: { total },
+      status: 1
+    };
+  }
+
 }

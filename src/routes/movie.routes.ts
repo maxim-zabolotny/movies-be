@@ -8,5 +8,6 @@ router.post('/', movieController.create);
 router.get('/:id', movieController.getById);
 router.patch('/:id', movieController.update);
 router.delete('/:id', movieController.delete);
+router.get('/', movieController.getAll);
 
 export default router;

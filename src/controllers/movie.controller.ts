@@ -132,4 +132,43 @@ export class MovieController extends BaseController {
       }
     }
   };
+
+  getAll = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const {
+        actor,
+        title,
+        search,
+        sort,
+        order,
+        limit,
+        offset
+      } = req.query;
+
+      const result = await this.movieService.getAllMovies({
+        actor: actor as string,
+        title: title as string,
+        search: search as string,
+        sort: sort as string,
+        order: order as 'ASC' | 'DESC',
+        limit: limit ? parseInt(limit as string, 10) : undefined,
+        offset: offset ? parseInt(offset as string, 10) : undefined
+      });
+
+      res.json({
+        status: 1,
+        data: result.data,
+        meta: result.meta
+      });
+    } catch (error) {
+      logger.error('Error in getAll:', error);
+      res.status(500).json({
+        status: 0,
+        error: {
+          code: ErrorCodes.INTERNAL_SERVER_ERROR,
+          message: ErrorCodes.INTERNAL_SERVER_ERROR
+        }
+      });
+    }
+  };
 }
