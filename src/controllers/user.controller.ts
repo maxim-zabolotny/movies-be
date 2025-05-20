@@ -42,7 +42,7 @@ export class UserController {
             logger.error('Error in UserController.create:', error);
 
             if (error.message === ErrorCodes.AUTHENTICATION_FAILED) {
-                res.status(400).json({
+                res.status(200).json({
                     status: 0,
                     error: {
                         code: ErrorCodes.AUTHENTICATION_FAILED,
