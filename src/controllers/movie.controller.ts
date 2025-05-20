@@ -106,4 +106,30 @@ export class MovieController extends BaseController {
       }
     }
   };
+
+  public getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        this.sendError(res, ErrorCodes.INVALID_ID, {
+          id: req.params.id
+        });
+        return;
+      }
+
+      const movie = await this.movieService.getMovieById(id);
+      this.sendSuccess(res, movie);
+    } catch (error: any) {
+      logger.error('Error in MovieController.getById:', error);
+      
+      if (error.message === ErrorCodes.MOVIE_NOT_FOUND) {
+        this.sendError(res, ErrorCodes.MOVIE_NOT_FOUND, {
+          id: parseInt(req.params.id)
+        });
+      } else {
+        this.sendError(res, ErrorCodes.INTERNAL_SERVER_ERROR);
+      }
+    }
+  };
 }

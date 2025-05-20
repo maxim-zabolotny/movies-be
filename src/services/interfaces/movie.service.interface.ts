@@ -16,4 +16,6 @@ export interface IMovieService {
     format?: string;
     actors?: string[];
   }): Promise<Movie | null>;
+
+  getMovieById(id: number): Promise<Movie | null>;
 }

@@ -161,4 +161,21 @@ export class MovieService implements IMovieService {
       throw error;
     }
   }
+
+  async getMovieById(id: number): Promise<Movie | null> {
+    try {
+      const movie = await Movie.findByPk(id, {
+        include: [Actor]
+      });
+
+      if (!movie) {
+        throw new Error(ErrorCodes.MOVIE_NOT_FOUND);
+      }
+
+      return movie;
+    } catch (error) {
+      logger.error('Error in MovieService.getMovieById:', error);
+      throw error;
+    }
+  }
 }
