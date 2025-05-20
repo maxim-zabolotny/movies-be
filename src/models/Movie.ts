@@ -29,7 +29,7 @@ class Movie extends Model<MovieAttributes> implements MovieAttributes {
 
 
   public getActors!: () => Promise<Actor[]>;
-  public setActors!: (actors: Actor[]) => Promise<void>;
+  public setActors!: (actors: Actor[], options?: any) => Promise<void>;
   public addActor!: (actor: Actor, options?: any) => Promise<void>;
   public removeActor!: (actor: Actor) => Promise<void>;
 }

@@ -7,4 +7,6 @@ export interface IMovieService {
     format: string;
     actors?: string[];
   }): Promise<Movie | null>;
+
+  deleteMovie(id: number): Promise<boolean>;
 }

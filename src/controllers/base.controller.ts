@@ -7,14 +7,31 @@ export class BaseController {
    * Send success response
    */
   protected sendSuccess<T>(res: Response, data: T): Response {
-    const response = {
+    const response: any = {
       status: 1,
-      data
     };
+
+    const isEmptyObject = (value: any) =>
+        typeof value === 'object' &&
+        value !== null &&
+        !Array.isArray(value) &&
+        Object.keys(value).length === 0;
+
+    const isEmptyArray = (value: any) => Array.isArray(value) && value.length === 0;
+
+    if (
+        data !== undefined &&
+        data !== null &&
+        !isEmptyObject(data) &&
+        !isEmptyArray(data)
+    ) {
+      response.data = data;
+    }
 
     logger.info(`Success response: ${JSON.stringify(response)}`);
     return res.status(200).json(response);
   }
+
 
   /**
    * Send error response
@@ -22,7 +39,7 @@ export class BaseController {
   protected sendError(
     res: Response,
     code: ErrorCode,
-    fields?: Record<string, string>
+    fields?: Record<string, string | number>
   ): Response {
     const response = {
       status: 0,

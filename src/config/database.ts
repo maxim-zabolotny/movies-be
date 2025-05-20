@@ -6,7 +6,7 @@ dotenv.config();
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: process.env.DB_PATH || './database.sqlite',
-  logging: console.log
+  logging: false,
 });
 
 export const testConnection = async () => {

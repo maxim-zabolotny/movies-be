@@ -6,9 +6,8 @@ export const ErrorCodes = {
     FORMAT_ERROR: 'FORMAT_ERROR',
     REQUIRED: 'REQUIRED',
     MOVIE_NOT_FOUND: 'MOVIE_NOT_FOUND',
-
-
+    INVALID_ID: 'INVALID_ID',
     INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
-  } as const;
-  
-  export type ErrorCode = keyof typeof ErrorCodes;
+} as const;
+
+export type ErrorCode = keyof typeof ErrorCodes;

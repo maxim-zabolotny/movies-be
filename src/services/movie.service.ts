@@ -57,4 +57,32 @@ export class MovieService implements IMovieService {
       throw error;
     }
   }
+
+  async deleteMovie(id: number): Promise<boolean> {
+    const transaction = await sequelize.transaction();
+
+    try {
+      const movie = await Movie.findByPk(id, {
+        include: [Actor],
+        transaction
+      });
+
+      if (!movie) {
+        throw new Error(ErrorCodes.MOVIE_NOT_FOUND);
+      }
+
+      // Remove all actor associations
+      await movie.setActors([], { transaction });
+
+      // Delete the movie
+      await movie.destroy({ transaction });
+
+      await transaction.commit();
+      return true;
+    } catch (error) {
+      await transaction.rollback();
+      logger.error('Error in MovieService.deleteMovie:', error);
+      throw error;
+    }
+  }
 }
