@@ -221,7 +221,7 @@ export class MovieService implements IMovieService {
       search,
       sort = 'id',
       order = 'ASC',
-      limit = 10,
+      limit = 20,
       offset = 0
     } = params;
 
@@ -272,6 +272,9 @@ export class MovieService implements IMovieService {
       where,
       include
     });
+
+    console.log('total');
+    console.log(total);
 
     const cleanedMovies = movies.map((movie: any) => {
       const { Actors, ...rest } = movie.get({ plain: true });
