@@ -135,4 +135,18 @@ docker build -t owerlord118/movies .
 3. To check container logs:
 ```bash
 docker logs movies
-``` 
+```
+
+## Future Improvements
+
+Here are some potential improvements for the project:
+
+1. **Type Safety**
+   - Add DTO (Data Transfer Object) types for all API endpoints
+   - Implement request/response validation using class-validator
+
+2. **Authentication & Authorization**
+   - Implement token refresh mechanism
+   - Add token blacklisting for logout
+   - Store user sessions in Redis
+   - Implement rate limiting
