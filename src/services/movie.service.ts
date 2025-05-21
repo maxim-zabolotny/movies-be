@@ -365,11 +365,7 @@ export class MovieService implements IMovieService {
           await movie.update({ source: sourceUrl });
 
           const addedMovie = await Movie.findByPk(movie.id, {
-            include: [{
-              model: Actor,
-              attributes: ['id', 'name', 'createdAt', 'updatedAt'],
-              required: false
-            }],
+            include: [],
             attributes: ['id', 'title', 'year', 'format', 'createdAt', 'updatedAt']
           });
 
