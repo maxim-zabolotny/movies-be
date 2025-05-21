@@ -139,8 +139,8 @@ export class MovieController extends BaseController {
         actor,
         title,
         search,
-        sort,
-        order,
+        sort = 'title',
+        order = 'ASC',
         limit,
         offset
       } = req.query;
