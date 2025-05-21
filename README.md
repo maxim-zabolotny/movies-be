@@ -51,7 +51,7 @@ The easiest way to run the application is using the pre-built Docker image:
 docker pull owerlord118/movies
 
 # Run container
-docker run --name movies -p 8000:8050 -e APP_PORT=8050 owerlord118/movies
+docker run --name movies -p 8000:8050 -e APP_PORT=8050 -e SERVER_URL=http://localhost:8000 owerlord118/movies
 ```
 
 The API will be available at `http://localhost:8000/api/v1`
@@ -67,7 +67,7 @@ https://hub.docker.com/r/owerlord118/movies
 docker build -t your_username/movies .
 
 # Run container
-docker run --name movies -p 8000:8050 -e APP_PORT=8050 your_username/movies
+docker run --name movies -p 8000:8050 -e APP_PORT=8050 -e SERVER_URL=http://localhost:8000 your_username/movies
 ```
 
 ## API Usage
@@ -118,6 +118,7 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8000/api/v1/movi
 
 - `APP_PORT` - Application port (default: 3000)
 - `JWT_SECRET` - Secret key for JWT tokens
+- `SERVER_URL` - Server URL for file uploads (default: http://localhost:8000)
 
 ## Troubleshooting
 
