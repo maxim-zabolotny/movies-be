@@ -42,23 +42,69 @@ The API will be available at `http://localhost:8000/api/v1`
 
 ## Docker
 
-Build and run with Docker:
+### Using Pre-built Image
+
+The easiest way to run the application is using the pre-built Docker image:
+
+```bash
+# Pull the image
+docker pull owerlord118/movies
+
+# Run container
+docker run --name movies -p 8000:8050 -e APP_PORT=8050 owerlord118/movies
+```
+
+The API will be available at `http://localhost:8000/api/v1`
+
+### Building from Source
+
+If you want to build the image yourself:
 
 ```bash
 # Build image
-docker build -t your_super_account/movies .
+docker build -t your_username/movies .
 
 # Run container
-docker run --name movies -p 8000:8050 -e APP_PORT=8050 your_super_account/movies
+docker run --name movies -p 8000:8050 -e APP_PORT=8050 your_username/movies
 ```
 
-## API Endpoints
+## API Usage
 
 ### Authentication
+
+1. Register a new user:
+```bash
+curl -X POST http://localhost:8000/api/v1/users \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "test@example.com",
+  "password": "password123",
+  "name": "Test User"
+}'
+```
+
+2. Login to get JWT token:
+```bash
+curl -X POST http://localhost:8000/api/v1/sessions \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "test@example.com",
+  "password": "password123"
+}'
+```
+
+Use the received token in the `Authorization` header for subsequent requests:
+```bash
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8000/api/v1/movies
+```
+
+### API Endpoints
+
+#### Authentication
 - POST `/api/v1/sessions` - Login
 - POST `/api/v1/users` - Register
 
-### Movies
+#### Movies
 - GET `/api/v1/movies` - Get all movies
 - POST `/api/v1/movies` - Create movie
 - GET `/api/v1/movies/:id` - Get movie by ID
@@ -69,4 +115,21 @@ docker run --name movies -p 8000:8050 -e APP_PORT=8050 your_super_account/movies
 ## Environment Variables
 
 - `APP_PORT` - Application port (default: 3000)
-- `JWT_SECRET` - Secret key for JWT tokens 
+- `JWT_SECRET` - Secret key for JWT tokens
+
+## Troubleshooting
+
+1. If you get "port already in use" error:
+```bash
+docker rm -f movies
+```
+
+2. If you need to rebuild the container:
+```bash
+docker build -t owerlord118/movies .
+```
+
+3. To check container logs:
+```bash
+docker logs movies
+``` 
