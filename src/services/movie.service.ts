@@ -22,7 +22,7 @@ export class MovieService implements IMovieService {
     year: number;
     format: string;
     actors?: string[];
-  }): Promise<Movie | null> {
+  }): Promise<{ data: any; status: number }> {
     const transaction = await sequelize.transaction();
 
     try {
@@ -59,9 +59,8 @@ export class MovieService implements IMovieService {
       await transaction.commit();
 
       // Fetch the complete movie with actors after transaction is committed
-      return await Movie.findByPk(movie.id, {
-        include: [Actor]
-      });
+      const createdMovie = await this.getMovieById(movie.id);
+      return createdMovie.data;
     } catch (error) {
       await transaction.rollback();
       logger.error('Error in MovieService.createMovie:', error);
@@ -102,7 +101,7 @@ export class MovieService implements IMovieService {
     year?: number;
     format?: string;
     actors?: string[];
-  }): Promise<Movie | null> {
+  }): Promise<{ data: any; status: number }> {
     const transaction = await sequelize.transaction();
 
     try {
@@ -162,9 +161,7 @@ export class MovieService implements IMovieService {
       await transaction.commit();
 
       // Fetch updated movie with actors
-      return await Movie.findByPk(id, {
-        include: [Actor]
-      });
+      return await this.getMovieById(id);
     } catch (error) {
       await transaction.rollback();
       logger.error('Error in MovieService.updateMovie:', error);
@@ -362,9 +359,9 @@ export class MovieService implements IMovieService {
         if (movie) {
           const fileName = path.basename(filePath);
           const sourceUrl = `${config.serverUrl}${config.uploadsPath}/${fileName}`;
-          await movie.update({ source: sourceUrl });
+          await movie.data.update({ source: sourceUrl });
 
-          const addedMovie = await Movie.findByPk(movie.id, {
+          const addedMovie = await Movie.findByPk(movie.data.id, {
             include: [],
             attributes: ['id', 'title', 'year', 'format', 'createdAt', 'updatedAt']
           });

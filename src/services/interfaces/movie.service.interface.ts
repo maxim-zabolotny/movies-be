@@ -6,7 +6,7 @@ export interface IMovieService {
     year: number;
     format: string;
     actors?: string[];
-  }): Promise<Movie | null>;
+  }): Promise<{ data: any; status: number }>;
 
   deleteMovie(id: number): Promise<boolean>;
 
@@ -15,9 +15,9 @@ export interface IMovieService {
     year?: number;
     format?: string;
     actors?: string[];
-  }): Promise<Movie | null>;
+  }): Promise<{ data: any; status: number }>;
 
-  getMovieById(id: number): Promise<{ data: Movie | null; status: number }>;
+  getMovieById(id: number): Promise<{ data: any; status: number }>;
 
   getAllMovies(params: {
     actor?: string;
