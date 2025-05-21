@@ -60,7 +60,7 @@ export class MovieService implements IMovieService {
 
       // Fetch the complete movie with actors after transaction is committed
       const createdMovie = await this.getMovieById(movie.id);
-      return createdMovie.data;
+      return createdMovie;
     } catch (error) {
       await transaction.rollback();
       logger.error('Error in MovieService.createMovie:', error);
@@ -358,16 +358,15 @@ export class MovieService implements IMovieService {
     return movie;
   }
 
-
-  async importMoviesFromFile(filePath: string): Promise<{ movies: Movie[]; imported: number; total: number }> {
+  async importMoviesFromFile(filePath: string): Promise<{ movies: any[]; imported: number; total: number }> {
     const content = fs.readFileSync(filePath, 'utf-8');
 
     const movieBlocks = content
-        .split(/\n\s*\n/)
-        .map(block => block.trim())
-        .filter(block => block.length > 0);
+      .split(/\n\s*\n/)
+      .map(block => block.trim())
+      .filter(block => block.length > 0);
 
-    const importedMovies: Movie[] = [];
+    const importedMovies: any[] = [];
     let imported = 0;
     let total = movieBlocks.length;
 
@@ -381,24 +380,32 @@ export class MovieService implements IMovieService {
       }
 
       try {
-        const movie = await this.createMovie({
+        const result = await this.createMovie({
           title: parsedMovie.title,
           year: parsedYear,
           format: parsedMovie.format as MovieFormat,
           actors: parsedMovie.stars
         });
 
-        if (movie) {
+        if (result && result.data) {
           const fileName = path.basename(filePath);
           const sourceUrl = `${config.serverUrl}${config.uploadsPath}/${fileName}`;
-          await movie.data.update({ source: sourceUrl });
+          
+          await Movie.update(
+            { source: sourceUrl },
+            { where: { id: result.data.id } }
+          );
 
-          const addedMovie = await this.getMovieById(movie.data.id);
-
-          if (addedMovie) {
-            importedMovies.push(addedMovie.data);
+          const movieDetails = await this.getMovieById(result.data.id);
+          if (movieDetails && movieDetails.data) {
+            const {actors, ...rest} = movieDetails.data
+            importedMovies.push(rest);
             imported++;
+          } else {
+            logger.error(`❌ Failed to get movie details for: ${parsedMovie.title}`);
           }
+        } else {
+          logger.error(`❌ Failed to create movie: ${parsedMovie.title}`);
         }
       } catch (error) {
         logger.error(`Error importing movie ${parsedMovie.title}:`, error);
@@ -406,11 +413,12 @@ export class MovieService implements IMovieService {
       }
     }
 
+    logger.info(`Import completed. Imported ${imported} out of ${total} movies.`);
+
     return {
       movies: importedMovies,
       imported,
       total
     };
   }
-
 }
