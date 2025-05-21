@@ -48,10 +48,10 @@ The easiest way to run the application is using the pre-built Docker image:
 
 ```bash
 # Pull the image
-docker pull owerlord118/movies
+docker pull owerlord118/movies-be
 
 # Run container
-docker run --name movies -p 8000:8050 -e APP_PORT=8050 -e SERVER_URL=http://localhost:8000 owerlord118/movies
+docker run --name movies -p 8000:8050 -e APP_PORT=8050 -e SERVER_URL=http://localhost:8000 owerlord118/movies-be
 ```
 
 The API will be available at `http://localhost:8000/api/v1`
