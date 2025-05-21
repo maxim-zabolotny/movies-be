@@ -92,7 +92,7 @@ export class MovieController extends BaseController {
       const success = await this.movieService.deleteMovie(id);
 
       if (success) {
-        this.sendSuccess(res, { message: 'Movie deleted successfully' });
+        this.sendSuccess(res, {});
       }
     } catch (error: any) {
       logger.error('Error in MovieController.delete:', error);
