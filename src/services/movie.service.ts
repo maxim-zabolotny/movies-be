@@ -268,13 +268,44 @@ export class MovieService implements IMovieService {
       offset
     });
 
-    const total = await Movie.count({
-      where,
-      include
-    });
-
-    console.log('total');
-    console.log(total);
+    let total;
+    if (actor) {
+      total = await Movie.count({
+        include: [{
+          model: Actor,
+          required: true,
+          where: {
+            name: {
+              [Op.like]: `%${actor}%`
+            }
+          }
+        }],
+        distinct: true
+      });
+    } else if (title) {
+      total = await Movie.count({
+        where: {
+          title: {
+            [Op.like]: `%${title}%`
+          }
+        }
+      });
+    } else if (search) {
+      total = await Movie.count({
+        where: {
+          [Op.or]: [
+            { title: { [Op.like]: `%${search}%` } },
+            Sequelize.literal(`EXISTS (
+            SELECT 1 FROM movie_actors AS ma
+            INNER JOIN actors AS a ON a.id = ma.actorId
+            WHERE ma.movieId = Movie.id AND a.name LIKE '%${search}%'
+          )`)
+          ]
+        }
+      });
+    } else {
+      total = await Movie.count();
+    }
 
     const cleanedMovies = movies.map((movie: any) => {
       const { Actors, ...rest } = movie.get({ plain: true });
