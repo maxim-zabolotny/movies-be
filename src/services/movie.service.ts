@@ -320,8 +320,6 @@ export class MovieService implements IMovieService {
   }
 
   private parseMovieBlock(block: string): ParsedMovie {
-    console.log('block');
-    console.log(block);
     const lines = block
         .split('\n')
         .map(line => line.trim())
@@ -395,13 +393,10 @@ export class MovieService implements IMovieService {
           const sourceUrl = `${config.serverUrl}${config.uploadsPath}/${fileName}`;
           await movie.data.update({ source: sourceUrl });
 
-          const addedMovie = await Movie.findByPk(movie.data.id, {
-            include: [],
-            attributes: ['id', 'title', 'year', 'format', 'createdAt', 'updatedAt']
-          });
+          const addedMovie = await this.getMovieById(movie.data.id);
 
           if (addedMovie) {
-            importedMovies.push(addedMovie);
+            importedMovies.push(addedMovie.data);
             imported++;
           }
         }
