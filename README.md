@@ -60,6 +60,8 @@ The API will be available at `http://localhost:8000/api/v1`
 
 If you want to build the image yourself:
 
+https://hub.docker.com/r/owerlord118/movies
+
 ```bash
 # Build image
 docker build -t your_username/movies .
