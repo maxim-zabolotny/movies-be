@@ -10,6 +10,8 @@ COPY . .
 
 RUN npm run build
 
-EXPOSE ${APP_PORT:-8000}
+ENV PORT=8050
+
+EXPOSE ${PORT}
 
 CMD ["npm", "start"] 
