@@ -172,17 +172,33 @@ export class MovieService implements IMovieService {
     }
   }
 
-  async getMovieById(id: number): Promise<Movie | null> {
+  async getMovieById(id: number): Promise<{ data: any; status: number }> {
     try {
       const movie = await Movie.findByPk(id, {
-        include: [Actor]
+        include: [{
+          model: Actor,
+          attributes: ['id', 'name', 'createdAt', 'updatedAt'],
+          required: false,
+          through: { attributes: [] }
+        }],
+        attributes: ['id', 'title', 'year', 'format', 'createdAt', 'updatedAt']
       });
 
       if (!movie) {
         throw new Error(ErrorCodes.MOVIE_NOT_FOUND);
       }
 
-      return movie;
+      const movieData = movie.get({ plain: true });
+      const formattedMovie = {
+        ...movieData,
+        actors: movieData.Actors || []
+      };
+      delete formattedMovie.Actors;
+
+      return {
+        data: formattedMovie,
+        status: 1
+      };
     } catch (error) {
       logger.error('Error in MovieService.getMovieById:', error);
       throw error;
@@ -347,8 +363,20 @@ export class MovieService implements IMovieService {
           const fileName = path.basename(filePath);
           const sourceUrl = `${config.serverUrl}${config.uploadsPath}/${fileName}`;
           await movie.update({ source: sourceUrl });
-          importedMovies.push(movie);
-          imported++;
+
+          const addedMovie = await Movie.findByPk(movie.id, {
+            include: [{
+              model: Actor,
+              attributes: ['id', 'name', 'createdAt', 'updatedAt'],
+              required: false
+            }],
+            attributes: ['id', 'title', 'year', 'format', 'createdAt', 'updatedAt']
+          });
+
+          if (addedMovie) {
+            importedMovies.push(addedMovie);
+            imported++;
+          }
         }
       } catch (error) {
         logger.error(`Error importing movie ${parsedMovie.title}:`, error);

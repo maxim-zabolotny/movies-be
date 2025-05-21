@@ -118,8 +118,8 @@ export class MovieController extends BaseController {
         return;
       }
 
-      const movie = await this.movieService.getMovieById(id);
-      this.sendSuccess(res, movie);
+      const result = await this.movieService.getMovieById(id);
+      res.json(result);
     } catch (error: any) {
       logger.error('Error in MovieController.getById:', error);
 

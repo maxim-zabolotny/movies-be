@@ -14,6 +14,7 @@ interface MovieAttributes {
   year: number;
   format: MovieFormat;
   source?: string;
+  Actors?: Actor[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -24,6 +25,7 @@ class Movie extends Model<MovieAttributes> implements MovieAttributes {
   public year!: number;
   public format!: MovieFormat;
   public source?: string;
+  public Actors?: Actor[];
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
