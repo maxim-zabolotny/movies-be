@@ -26,7 +26,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
             status: 0,
             error: {
                 fields: {
-                    token: "INVALID_FORMAT"
+                    token: "REQUIRED"
                 },
                 code: "FORMAT_ERROR"
             }
@@ -43,7 +43,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
             status: 0,
             error: {
                 fields: {
-                    token: "INVALID"
+                    token: "REQUIRED"
                 },
                 code: "FORMAT_ERROR"
             }
