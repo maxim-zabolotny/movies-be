@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
   });
 });
 
-const PORT = parseInt(process.env.APP_PORT || '3000', 10);
+const PORT = parseInt(process.env.PORT || '3000', 10);
 const HOST = '0.0.0.0';
 
 // Initialize database and start server
